@@ -1,5 +1,6 @@
 import requests
 from pprint import pprint
+from work_db import create_user
 
 
 def init_token():
@@ -19,7 +20,7 @@ def user_info(user_id):
     sex = result.json()['response'][0]['sex']
     bdate = result.json()['response'][0]['bdate']
     age = bdate.split('.')[2]
-    city = result.json()['response'][0]['city']['title']
+    city = result.json()['response'][0]['city']['id']
     return [sex, city, age]
 
 
@@ -28,14 +29,17 @@ def users_search(sex, hometown, birth_year, relation=6):
     url = 'https://api.vk.com/method/users.search'
     params = {
         'access_token': TOKEN,
-        'fields': 'city, bdate',
-        'hometown': hometown,
+        'city': hometown,
         'sex': sex,
         'status': relation,
         'birth_year': birth_year,
+        'count': 3,
         'v': '5.131'}
     result = requests.get(url, params)
-    return result.json()['response']['items'][0]['id']
+    user_search_id = []
+    for item in result.json()['response']['items']:
+        user_search_id.append(item['id'])
+    return user_search_id
 
 
 def user_foto(user_id):
@@ -53,7 +57,7 @@ def user_foto(user_id):
     for item in result.json()['response']['items']:
         comments = item['comments']['count']
         likes = item['likes']['count']
-        photo = item['sizes'][-1]['url']
+        photo = item['id']
         photo_profile[photo] = int(comments + likes)
 
     sorted_values = sorted(photo_profile.items(), key=lambda x: x[1])
@@ -67,4 +71,4 @@ def user_foto(user_id):
 
 if __name__ == '__main__':
 
-    print(user_foto(11372251))
+    print(user_info(1373131))

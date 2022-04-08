@@ -14,6 +14,10 @@ def write_msg(user_id, message):
     vk.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
 
 
+def write_msg_attachment(user_id, attachment):
+    vk.method('messages.send', {'user_id': user_id, 'attachment': attachment, 'random_id': randrange(10 ** 7), })
+
+
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
 
@@ -21,15 +25,19 @@ for event in longpoll.listen():
             request = event.text
 
             if request == "привет":
-                write_msg(event.user_id, f"Хай, {event.user_id}")
+                write_msg(event.user_id, f"Хай, {event.user_id}\n Введите ID пользователя для кого мы будем искать пару")
             elif request == "пока":
                 write_msg(event.user_id, "Пока((")
             else:
-                user_info_ = user_info(event.user_id)
-                id = users_search(user_info_[0], user_info_[1], user_info_[2])
-                photo = user_foto(id)
+                user_info_ = user_info(int(event.text))
 
-                write_msg(event.user_id, photo[0])
+                ids = users_search(user_info_[0], user_info_[1], user_info_[2])
+                for id_ in ids:
+                    write_msg(event.user_id, f'https://vk.com/id{id_}')
+                    photos = user_foto(id_)
+                    for photo in photos:
+                        write_msg_attachment(event.user_id, f'photo{id_}_{photo} ')
+
 
 
 
