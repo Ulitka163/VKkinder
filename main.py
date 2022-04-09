@@ -3,6 +3,7 @@ from random import randrange
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from user import user_info, users_search, user_foto
+from work_db import create_user_search, check_user
 
 token = input('Token: ')
 
@@ -30,13 +31,15 @@ for event in longpoll.listen():
                 write_msg(event.user_id, "Пока((")
             else:
                 user_info_ = user_info(int(event.text))
-
                 ids = users_search(user_info_[0], user_info_[1], user_info_[2])
                 for id_ in ids:
+                    number_id = check_user(event.text)
+                    create_user_search(number_id[0][0], id_)
                     write_msg(event.user_id, f'https://vk.com/id{id_}')
                     photos = user_foto(id_)
                     for photo in photos:
                         write_msg_attachment(event.user_id, f'photo{id_}_{photo} ')
+
 
 
 

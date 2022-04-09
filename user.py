@@ -1,6 +1,6 @@
 import requests
 from pprint import pprint
-from work_db import create_user
+from work_db import create_user, check_user, check_user_search
 
 
 def init_token():
@@ -9,6 +9,8 @@ def init_token():
 
 
 def user_info(user_id):
+    if len(check_user(user_id)) == 0:
+        create_user(user_id)
     TOKEN = init_token()
     url = 'https://api.vk.com/method/users.get'
     params = {
@@ -33,12 +35,16 @@ def users_search(sex, hometown, birth_year, relation=6):
         'sex': sex,
         'status': relation,
         'birth_year': birth_year,
-        'count': 3,
+        'fields': 'is_closed',
         'v': '5.131'}
     result = requests.get(url, params)
     user_search_id = []
     for item in result.json()['response']['items']:
-        user_search_id.append(item['id'])
+        if item['is_closed'] == False:
+            if item['id'] not in check_user_search():
+                user_search_id.append(item['id'])
+                if len(user_search_id) == 3:
+                    break
     return user_search_id
 
 
@@ -71,4 +77,4 @@ def user_foto(user_id):
 
 if __name__ == '__main__':
 
-    print(user_info(1373131))
+    print(users_search(1, 123, 1989))
