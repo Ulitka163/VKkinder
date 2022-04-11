@@ -9,8 +9,6 @@ def init_token():
 
 
 def user_info(user_id):
-    if len(check_user(user_id)) == 0:
-        create_user(user_id)
     TOKEN = init_token()
     url = 'https://api.vk.com/method/users.get'
     params = {
@@ -19,22 +17,40 @@ def user_info(user_id):
         'fields': 'bdate, sex, city',
         'v': '5.131'}
     result = requests.get(url, params)
-    sex = result.json()['response'][0]['sex']
-    bdate = result.json()['response'][0]['bdate']
-    age = bdate.split('.')[2]
-    city = result.json()['response'][0]['city']['id']
-    return [sex, city, age]
+    user_info_dict = {}
+    user_info_ = result.json()['response'][0]
+    if 'sex' not in user_info_.keys():
+        user_info_dict['sex'] = None
+    else:
+        user_info_dict['sex'] = user_info_['sex']
+
+    if 'bdate' not in user_info_.keys():
+        user_info_dict['age'] = None
+    else:
+        bdate = user_info_['bdate']
+        if len(bdate.split('.')) < 3:
+            user_info_dict['age'] = None
+        else:
+            user_info_dict['age'] = bdate.split('.')[2]
+
+    if 'city' not in user_info_.keys():
+        user_info_dict['city'] = None
+    else:
+        user_info_dict['city'] = user_info_['city']['title']
+
+    user_info_dict['name'] = user_info_['first_name'] + ' ' + user_info_['last_name']
+    return user_info_dict
 
 
-def users_search(sex, hometown, birth_year, relation=6):
+def users_search(dict, relation=6):
     TOKEN = init_token()
     url = 'https://api.vk.com/method/users.search'
     params = {
         'access_token': TOKEN,
-        'city': hometown,
-        'sex': sex,
+        'hometown': dict['city'],
+        'sex': dict['sex'],
         'status': relation,
-        'birth_year': birth_year,
+        'birth_year': dict['age'],
         'fields': 'is_closed',
         'v': '5.131'}
     result = requests.get(url, params)
@@ -75,6 +91,19 @@ def user_foto(user_id):
     return top_photo_profile
 
 
+def city_list():
+    TOKEN = init_token()
+    url = 'https://api.vk.com/method/database.getCities'
+    params = {
+        'access_token': TOKEN,
+        'country_id': 1,
+        'count': 100,
+        'need_all': 0,
+        'v': '5.131'}
+    result = requests.get(url, params)
+    return result.json()
+
+
 if __name__ == '__main__':
 
-    print(users_search(1, 123, 1989))
+    pprint(city_list())

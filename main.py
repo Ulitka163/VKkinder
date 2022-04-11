@@ -1,9 +1,9 @@
 from random import randrange
-
+import re
 import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from user import user_info, users_search, user_foto
-from work_db import create_user_search, check_user
+from work_db import create_user_search, check_user, create_user_info, check_user_info, update_user_info, create_user
 
 token = input('Token: ')
 
@@ -19,26 +19,64 @@ def write_msg_attachment(user_id, attachment):
     vk.method('messages.send', {'user_id': user_id, 'attachment': attachment, 'random_id': randrange(10 ** 7), })
 
 
+def complet_user_info(user_id):
+    user_info_dict = check_user_info(user_id)
+    for key, value in user_info_dict.items():
+        if value == None:
+            if key == 'sex':
+                write_msg(event.user_id, f'Введите пол пользователя:')
+                break
+            elif key == 'city':
+                write_msg(event.user_id, f'Введите город пользователя:')
+                break
+            elif key == 'age':
+                write_msg(event.user_id, f'Введите год рождения пользователя:')
+                break
+    return True
+
+
+def correct_answer():
+    user_info_dict = check_user_info(user_id)
+    ids = users_search(user_info_dict)
+    for id_ in ids:
+        create_user_search(user_id, id_)
+        write_msg(event.user_id, f'https://vk.com/id{id_}')
+        photos = user_foto(id_)
+        for photo in photos:
+            write_msg_attachment(event.user_id, f'photo{id_}_{photo} ')
+
+
 for event in longpoll.listen():
     if event.type == VkEventType.MESSAGE_NEW:
 
         if event.to_me:
             request = event.text
+            user_id = ''
 
             if request == "привет":
-                write_msg(event.user_id, f"Хай, {event.user_id}\n Введите ID пользователя для кого мы будем искать пару")
+                write_msg(event.user_id, f"Хай, {event.user_id}\n Введите ID пользователя для кого мы будем искать пару (id....)")
             elif request == "пока":
                 write_msg(event.user_id, "Пока((")
-            else:
-                user_info_ = user_info(int(event.text))
-                ids = users_search(user_info_[0], user_info_[1], user_info_[2])
-                for id_ in ids:
-                    number_id = check_user(event.text)
-                    create_user_search(number_id[0][0], id_)
-                    write_msg(event.user_id, f'https://vk.com/id{id_}')
-                    photos = user_foto(id_)
-                    for photo in photos:
-                        write_msg_attachment(event.user_id, f'photo{id_}_{photo} ')
+            elif re.search(r'^id\d*$', request):
+                user_id = request
+                if len(check_user(user_id)) == 0:
+                    create_user(user_id)
+                    user_info_dict = user_info(user_id)
+                    create_user_info(user_id, user_info_dict)
+                    if complet_user_info(user_id):
+                        correct_answer()
+                else:
+                    correct_answer()
+
+            elif 1922 < int(re.search(r'^\d{4}$', request).group()) < 2022:
+                update_user_info(request, 'birth_year', user_id)
+                if complet_user_info(user_id):
+                    correct_answer()
+
+            elif re.search(r'^[А-я]$', request):
+                update_user_info(request, 'city', user_id)
+                if complet_user_info(user_id):
+                    correct_answer()
 
 
 
