@@ -24,7 +24,7 @@ def complet_user_info(user_id):
     for key, value in user_info_dict.items():
         if value == None:
             if key == 'sex':
-                write_msg(event.user_id, f'Введите пол пользователя:')
+                write_msg(event.user_id, f'Введите пол пользователя(ж, м):')
                 break
             elif key == 'city':
                 write_msg(event.user_id, f'Введите город пользователя:')
@@ -75,6 +75,14 @@ for event in longpoll.listen():
 
             elif re.search(r'^[А-я]$', request):
                 update_user_info(request, 'city', user_id)
+                if complet_user_info(user_id):
+                    correct_answer()
+
+            elif re.search(r'^(м|ж)$', request):
+                if request == 'м':
+                    update_user_info(2, 'sex', user_id)
+                else:
+                    update_user_info(1, 'sex', user_id)
                 if complet_user_info(user_id):
                     correct_answer()
 
