@@ -19,7 +19,7 @@ def write_msg_attachment(user_id, attachment):
     vk.method('messages.send', {'user_id': user_id, 'attachment': attachment, 'random_id': randrange(10 ** 7), })
 
 
-def complet_user_info(user_id):
+def complet_user_info(user_id):    # проверка на полноту информации нужной для поиска
     user_info_dict = check_user_info(user_id)
     for key, value in user_info_dict.items():
         if value == None:
@@ -57,7 +57,7 @@ for event in longpoll.listen():
                 write_msg(event.user_id, f"Хай, {event.user_id}\n Введите ID пользователя для кого мы будем искать пару (id....)")
             elif request == "пока":
                 write_msg(event.user_id, "Пока((")
-            elif re.search(r'^id\d*$', request):
+            elif re.search(r'^id\d*$', request):    # проверка входящего сообщения: на ID пользователя
                 user_id = request
                 if len(check_user(user_id)) == 0:
                     create_user(user_id)
@@ -68,17 +68,17 @@ for event in longpoll.listen():
                 else:
                     correct_answer()
 
-            elif 1922 < int(re.search(r'^\d{4}$', request).group()) < 2022:
+            elif 1922 < int(re.search(r'^\d{4}$', request).group()) < 2022:     # проверка входящего сообщения: на год рождения
                 update_user_info(request, 'birth_year', user_id)
                 if complet_user_info(user_id):
                     correct_answer()
 
-            elif re.search(r'^[А-я]$', request):
+            elif re.search(r'^[А-я]$', request):     # проверка входящего сообщения: на Город
                 update_user_info(request, 'city', user_id)
                 if complet_user_info(user_id):
                     correct_answer()
 
-            elif re.search(r'^(м|ж)$', request):
+            elif re.search(r'^(м|ж)$', request):      # проверка входящего сообщения: на пол пользователя
                 if request == 'м':
                     update_user_info(2, 'sex', user_id)
                 else:

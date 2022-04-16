@@ -1,6 +1,6 @@
 import requests
 from pprint import pprint
-from work_db import create_user, check_user, check_user_search
+from work_db import check_user_search
 
 
 def init_token():
@@ -91,19 +91,6 @@ def user_foto(user_id):
     return top_photo_profile
 
 
-def city_list():
-    TOKEN = init_token()
-    url = 'https://api.vk.com/method/database.getCities'
-    params = {
-        'access_token': TOKEN,
-        'country_id': 1,
-        'count': 100,
-        'need_all': 0,
-        'v': '5.131'}
-    result = requests.get(url, params)
-    return result.json()
-
-
 if __name__ == '__main__':
 
-    pprint(city_list())
+    print(1)
