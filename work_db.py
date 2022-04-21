@@ -38,7 +38,7 @@ def create_user(vk_id):
 def create_user_info(vk_id, dict):
     user_id = check_user(vk_id)[0][0]
     connection.execute(f'''INSERT INTO user_info
-    VALUES({user_id}, '{dict['name']}', {dict['sex']}, '{dict['city']}', {dict['age']});
+    VALUES({user_id}, '{dict['name']}', {dict['sex']}, '{dict['city']}', '{dict['age']}');
     ''')
 
 
@@ -57,5 +57,5 @@ def update_user_info(value, column, user_id):
 
 
 if __name__ == '__main__':
-    print(check_user(314747176))
+    print(check_user(38186871))
     # print(check_user_search())

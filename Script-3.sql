@@ -13,5 +13,5 @@ create table if not exists user_info (
 	name varchar(40) not null,
 	sex integer,
 	city varchar(40),
-	birth_year integer
+	birth_year varchar(40)
 );
